@@ -1,5 +1,3 @@
-// ❌ Ne PAS utiliser: const fetch = require("node-fetch");
-
 exports.handler = async function () {
   try {
     const res = await fetch("https://throneandliberty.gameslantern.com/api/server-status");
