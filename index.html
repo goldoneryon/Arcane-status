@@ -157,7 +157,7 @@
       fetch("/.netlify/functions/getServers")
         .then(res => res.json())
         .then(data => {
-          renderTable(data.servers, filterSelect.value);
+          renderTable(data, filterSelect.value);
           lastUpdateTime = Date.now();
           updateClock();
         })
@@ -167,9 +167,8 @@
     }
 
     filterSelect.addEventListener("change", fetchAndUpdate);
-
     fetchAndUpdate();
-    setInterval(fetchAndUpdate, 30000); // toutes les 30 secondes
+    setInterval(fetchAndUpdate, 30000);
   </script>
 </body>
 </html>
