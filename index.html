@@ -5,52 +5,92 @@
   <title>Serveurs Throne & Liberty</title>
   <style>
     body {
-      background: radial-gradient(circle at top, #222, #111);
-      color: #f0f0f0;
+      margin: 0;
       font-family: 'Segoe UI', sans-serif;
+      background: url('https://i.imgur.com/Nc5m1xe.gif') no-repeat center center fixed;
+      background-size: cover;
+      color: #f0f0f0;
       padding: 30px;
     }
     h1 {
       text-align: center;
       color: #e4b12f;
+      margin-bottom: 10px;
+    }
+    .status-bar {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 1rem;
+    }
+    .status-bar span {
+      margin: 0 8px;
+    }
+    #live-indicator {
+      color: #f44336;
+      font-weight: bold;
+      animation: pulse 1s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+    select {
+      font-size: 1rem;
+      padding: 6px;
+      border-radius: 4px;
       margin-bottom: 20px;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 20px;
-      background-color: rgba(255, 255, 255, 0.03);
+      background-color: rgba(0, 0, 0, 0.6);
     }
     th, td {
       padding: 12px;
-      border-bottom: 1px solid #555;
+      border-bottom: 1px solid #666;
       text-align: left;
     }
     th {
       background-color: #333;
       color: #e4b12f;
-      font-size: 1rem;
     }
     .status-online { color: #4caf50; font-weight: bold; }
     .status-full { color: #e91e63; font-weight: bold; }
     .status-maintenance { color: #ff9800; font-weight: bold; }
+    .recommended {
+      background-color: rgba(255, 255, 255, 0.1);
+      border-left: 5px solid #4caf50;
+    }
+    #dragon {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      width: 80px;
+      opacity: 0.9;
+    }
     footer {
       margin-top: 40px;
       text-align: center;
       font-size: 0.9rem;
-      color: #888;
-    }
-    tr.fade-in {
-      animation: fadeIn 0.8s ease-in;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(5px); }
-      to { opacity: 1; transform: translateY(0); }
+      color: #bbb;
     }
   </style>
 </head>
 <body>
-  <h1>🌍 Serveurs européens - Throne & Liberty</h1>
+  <h1>🌍 Serveurs Throne & Liberty</h1>
+
+  <div class="status-bar">
+    <span id="live-indicator">🔴 LIVE</span>
+    <span id="last-update">Mise à jour il y a 0s</span>
+  </div>
+
+  <label for="filter">Filtrer par statut :</label>
+  <select id="filter">
+    <option value="all">Tous</option>
+    <option value="Online">🟢 Online</option>
+    <option value="Full">🔴 Full</option>
+    <option value="Maintenance">🟠 Maintenance</option>
+  </select>
 
   <table id="servers-table">
     <thead>
@@ -67,20 +107,81 @@
     </tbody>
   </table>
 
+  <img id="dragon" src="https://i.imgur.com/6kX6oxL.png" alt="Dragon RPG" />
   <footer>
-    Mise à jour automatique toutes les 10 minutes par magie Playwright 🧙
+    ⚔️ Mise à jour toutes les 30s • Magie automatisée par GitHub Actions + Playwright
   </footer>
+  <audio id="ping" src="https://assets.mixkit.co/sfx/preview/mixkit-magical-coin-win-1999.mp3" preload="auto"></audio>
 
   <script>
-    fetch("/.netlify/functions/getServers")
-      .then(res => res.json())
-      .then(data => {
-        const tbody = document.querySelector("#servers-table tbody");
-        tbody.innerHTML = "";
+    const tbody = document.querySelector("#servers-table tbody");
+    const filterSelect = document.getElementById("filter");
+    const ping = document.getElementById("ping");
+    let previousStatus = {};
+    let lastUpdateTime = Date.now();
 
-        data.servers.forEach(server => {
-          const tr = document.createElement("tr");
-          tr.classList.add("fade-in");
+    function getWeatherIcon(text) {
+      text = text.toLowerCase();
+      if (text.includes("sun")) return "☀️";
+      if (text.includes("rain")) return "🌧️";
+      if (text.includes("cloud")) return "☁️";
+      if (text.includes("fog")) return "🌫️";
+      return "❓";
+    }
 
-          const statusClass = {
-            online: "status
+    function updateClock() {
+      const seconds = Math.floor((Date.now() - lastUpdateTime) / 1000);
+      document.getElementById("last-update").textContent = `Mise à jour il y a ${seconds}s`;
+    }
+    setInterval(updateClock, 1000);
+
+    function renderTable(servers, filter) {
+      tbody.innerHTML = "";
+      servers.forEach(server => {
+        if (filter !== "all" && server.status !== filter) return;
+
+        const tr = document.createElement("tr");
+        if (server.population.toLowerCase() === "low") tr.classList.add("recommended");
+
+        const statusClass = {
+          online: "status-online",
+          full: "status-full",
+          maintenance: "status-maintenance"
+        };
+
+        if (server.status === "Online" && previousStatus[server.name] !== "Online") {
+          ping.play();
+        }
+
+        previousStatus[server.name] = server.status;
+
+        tr.innerHTML = `
+          <td>${server.name}</td>
+          <td>${server.region}</td>
+          <td class="${statusClass[server.status.toLowerCase()] || ''}">${server.status}</td>
+          <td>${server.population}</td>
+          <td>${getWeatherIcon(server.weather)} ${server.weather}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function fetchAndUpdate() {
+      fetch("/.netlify/functions/getServers")
+        .then(res => res.json())
+        .then(data => {
+          renderTable(data.servers, filterSelect.value);
+          lastUpdateTime = Date.now();
+          updateClock();
+        })
+        .catch(err => {
+          tbody.innerHTML = `<tr><td colspan="5">Erreur de chargement : ${err.message}</td></tr>`;
+        });
+    }
+
+    filterSelect.addEventListener("change", () => {
+      fetchAndUpdate();
+    });
+
+    fetchAndUpdate();
+    setInterval(fetchAndUpdate, 30000); // toutes les 30 secondes
