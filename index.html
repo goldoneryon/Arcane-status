@@ -31,18 +31,9 @@
       color: #e4b12f;
       font-size: 1rem;
     }
-    .status-online {
-      color: #4caf50;
-      font-weight: bold;
-    }
-    .status-full {
-      color: #e91e63;
-      font-weight: bold;
-    }
-    .status-maintenance {
-      color: #ff9800;
-      font-weight: bold;
-    }
+    .status-online { color: #4caf50; font-weight: bold; }
+    .status-full { color: #e91e63; font-weight: bold; }
+    .status-maintenance { color: #ff9800; font-weight: bold; }
     footer {
       margin-top: 40px;
       text-align: center;
@@ -80,3 +71,29 @@
         const tbody = document.querySelector("#servers-table tbody");
         tbody.innerHTML = "";
 
+        data.forEach(server => {
+          const tr = document.createElement("tr");
+
+          const statusClass = {
+            online: "status-online",
+            full: "status-full",
+            maintenance: "status-maintenance"
+          };
+
+          tr.innerHTML = `
+            <td>${server.name}</td>
+            <td>${server.region}</td>
+            <td class="${statusClass[server.status.toLowerCase()] || ''}">${server.status}</td>
+            <td>${server.population}</td>
+            <td>${server.weather}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      })
+      .catch(err => {
+        document.querySelector("#servers-table tbody").innerHTML =
+          `<tr><td colspan="5">Erreur de chargement : ${err.message}</td></tr>`;
+      });
+  </script>
+</body>
+</html>
