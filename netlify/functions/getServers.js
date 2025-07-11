@@ -1,11 +1,10 @@
-const cheerio = require("cheerio");
 const https = require("https");
 
 exports.handler = async function () {
   try {
-    const url = "https://throneandliberty.gameslantern.com/server-status";
+    const url = "https://raw.githubusercontent.com/goldoneryon/Arcane-status/main/server-status.json";
 
-    const html = await new Promise((resolve, reject) => {
+    const json = await new Promise((resolve, reject) => {
       https.get(url, res => {
         let data = "";
         res.on("data", chunk => data += chunk);
@@ -13,25 +12,7 @@ exports.handler = async function () {
       }).on("error", reject);
     });
 
-    const $ = cheerio.load(html);
-    const servers = [];
-
-    $("table tbody tr").each((_, el) => {
-      const columns = $(el).find("td");
-
-      // Vérifie qu'on ignore les lignes d’en-tête
-      const name = $(columns[0]).text().trim();
-      if (/name/i.test(name)) return;
-
-      // ⚠️ Tu peux ajouter un filtre ici pour "Europe" si nécessaire
-      servers.push({
-        name,
-        region: $(columns[1]).text().trim(),
-        status: $(columns[2]).text().trim(),
-        population: $(columns[3]).text().trim(),
-        weather: $(columns[4]).text().trim()
-      });
-    });
+    const parsed = JSON.parse(json);
 
     return {
       statusCode: 200,
@@ -39,13 +20,16 @@ exports.handler = async function () {
         "Access-Control-Allow-Origin": "*",
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ servers })
+      body: JSON.stringify(parsed)
     };
 
   } catch (err) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Erreur serveur", details: err.message })
+      body: JSON.stringify({
+        error: "Erreur serveur",
+        details: err.message
+      })
     };
   }
 };
