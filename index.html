@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Serveurs Throne & Liberty</title>
+  <title>Status des serveurs Throne & Liberty</title>
   <link rel="icon" href="https://upload.wikimedia.org/wikipedia/fr/c/c4/Throne_and_Liberty_Logo.png">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap');
@@ -11,7 +11,7 @@
       margin: 0;
       padding: 2rem;
       font-family: 'MedievalSharp', serif;
-      background: radial-gradient(circle at top, #161616, #000);
+      background: radial-gradient(circle at top, #1b1b1b, #000000);
       color: #f0e6d2;
       text-align: center;
     }
@@ -61,10 +61,10 @@
       margin-right: 8px;
     }
 
-    .online       { background-color: #28a745; }
-    .busy         { background-color: #ffc107; }
-    .full         { background-color: #fd7e14; }
-    .maintenance  { background-color: #dc3545; }
+    .Online { background-color: #28a745; }       /* 🟢 */
+    .Maintenance { background-color: #dc3545; }  /* 🔴 */
+    .Full { background-color: #fd7e14; }         /* 🟠 */
+    .Busy { background-color: #ffc107; }         /* 🟡 */
 
     .server-info {
       font-size: 0.95rem;
@@ -87,8 +87,8 @@
   <script>
     async function loadServers() {
       try {
-        const response = await fetch("/.netlify/functions/getServers");
-        const data = await response.json();
+        const res = await fetch("/.netlify/functions/getServers");
+        const data = await res.json();
         const container = document.getElementById("servers");
         container.innerHTML = "";
 
@@ -96,11 +96,9 @@
           const card = document.createElement("div");
           card.className = "server-card";
 
-          const statusClass = server.status.toLowerCase();
-
           card.innerHTML = `
             <div class="server-name">
-              <span class="badge ${statusClass}"></span>${server.name}
+              <span class="badge ${server.status}"></span>${server.name}
             </div>
             <div class="server-info">
               🌍 <strong>Région :</strong> ${server.region}<br>
@@ -114,15 +112,17 @@
         });
 
         const now = new Date();
-        document.getElementById("timestamp").textContent = `⏱️ Dernière mise à jour : ${now.toLocaleTimeString()}`;
+        document.getElementById("timestamp").textContent =
+          `⏱️ Dernière mise à jour : ${now.toLocaleTimeString()}`;
       } catch (e) {
-        document.getElementById("servers").textContent = "❌ Impossible de charger les serveurs.";
-        console.error(e);
+        document.getElementById("servers").textContent =
+          "❌ Impossible de charger les serveurs.";
+        console.error("Erreur lors du chargement des serveurs :", e);
       }
     }
 
     loadServers();
-    setInterval(loadServers, 300000); // toutes les 5 minutes
+    setInterval(loadServers, 300000); // Toutes les 5 minutes
   </script>
 </body>
 </html>
