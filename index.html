@@ -1,41 +1,59 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Serveurs Throne & Liberty</title>
   <style>
     body {
-      font-family: "Segoe UI", sans-serif;
-      background: linear-gradient(to bottom, #111, #333);
-      color: #f5f5f5;
-      padding: 20px;
+      background: radial-gradient(circle at top, #222, #111);
+      color: #f0f0f0;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 30px;
     }
     h1 {
       text-align: center;
       color: #e4b12f;
-      margin-bottom: 30px;
+      margin-bottom: 20px;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      background-color: rgba(255, 255, 255, 0.05);
+      margin-top: 20px;
+      background-color: rgba(255, 255, 255, 0.03);
     }
     th, td {
       padding: 12px;
-      text-align: left;
       border-bottom: 1px solid #555;
+      text-align: left;
     }
     th {
-      background-color: #222;
+      background-color: #333;
       color: #e4b12f;
+      font-size: 1rem;
     }
-    .status-online { color: #4caf50; font-weight: bold; }
-    .status-full { color: #e91e63; font-weight: bold; }
-    .status-maintenance { color: #ff9800; font-weight: bold; }
+    .status-online {
+      color: #4caf50;
+      font-weight: bold;
+    }
+    .status-full {
+      color: #e91e63;
+      font-weight: bold;
+    }
+    .status-maintenance {
+      color: #ff9800;
+      font-weight: bold;
+    }
+    footer {
+      margin-top: 40px;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #888;
+    }
   </style>
 </head>
 <body>
   <h1>🌍 Serveurs européens - Throne & Liberty</h1>
+
   <table id="servers-table">
     <thead>
       <tr>
@@ -46,8 +64,14 @@
         <th>Météo</th>
       </tr>
     </thead>
-    <tbody></tbody>
+    <tbody>
+      <tr><td colspan="5">Chargement des serveurs...</td></tr>
+    </tbody>
   </table>
+
+  <footer>
+    Mise à jour automatique toutes les 10 minutes par magie Playwright 🧙
+  </footer>
 
   <script>
     fetch("/.netlify/functions/getServers")
@@ -56,29 +80,3 @@
         const tbody = document.querySelector("#servers-table tbody");
         tbody.innerHTML = "";
 
-        data.servers.forEach(server => {
-          const tr = document.createElement("tr");
-
-          const statusClass = {
-            "online": "status-online",
-            "full": "status-full",
-            "maintenance": "status-maintenance"
-          };
-
-          tr.innerHTML = `
-            <td>${server.name}</td>
-            <td>${server.region}</td>
-            <td class="${statusClass[server.status.toLowerCase()] || ''}">${server.status}</td>
-            <td>${server.population}</td>
-            <td>${server.weather}</td>
-          `;
-          tbody.appendChild(tr);
-        });
-      })
-      .catch(err => {
-        document.querySelector("#servers-table tbody").innerHTML =
-          `<tr><td colspan="5">Erreur de chargement : ${err.message}</td></tr>`;
-      });
-  </script>
-</body>
-</html>
