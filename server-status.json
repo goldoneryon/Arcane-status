@@ -1,0 +1,25 @@
+{
+  "servers": [
+    {
+      "name": "Valtor",
+      "region": "Europe",
+      "status": "Online",
+      "weather": "Rains in 12m",
+      "population": "Medium"
+    },
+    {
+      "name": "Kaelis",
+      "region": "NA-East",
+      "status": "Maintenance",
+      "weather": "Clear skies",
+      "population": "N/A"
+    },
+    {
+      "name": "Sundral",
+      "region": "Asia",
+      "status": "Full",
+      "weather": "Stops in 5m",
+      "population": "High"
+    }
+  ]
+}
