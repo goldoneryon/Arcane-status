@@ -5,10 +5,8 @@
   <title>Serveurs Throne & Liberty</title>
   <style>
     body {
-      margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: url('https://i.imgur.com/Nc5m1xe.gif') no-repeat center center fixed;
-      background-size: cover;
+      background-color: #111;
       color: #f0f0f0;
       padding: 30px;
     }
@@ -21,9 +19,6 @@
       text-align: center;
       margin-bottom: 20px;
       font-size: 1rem;
-    }
-    .status-bar span {
-      margin: 0 8px;
     }
     #live-indicator {
       color: #f44336;
@@ -43,11 +38,11 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      background-color: rgba(0, 0, 0, 0.6);
+      background-color: #222;
     }
     th, td {
       padding: 12px;
-      border-bottom: 1px solid #666;
+      border-bottom: 1px solid #555;
       text-align: left;
     }
     th {
@@ -58,21 +53,14 @@
     .status-full { color: #e91e63; font-weight: bold; }
     .status-maintenance { color: #ff9800; font-weight: bold; }
     .recommended {
-      background-color: rgba(255, 255, 255, 0.1);
+      background-color: rgba(255, 255, 255, 0.05);
       border-left: 5px solid #4caf50;
-    }
-    #dragon {
-      position: fixed;
-      bottom: 10px;
-      right: 10px;
-      width: 80px;
-      opacity: 0.9;
     }
     footer {
       margin-top: 40px;
       text-align: center;
       font-size: 0.9rem;
-      color: #bbb;
+      color: #888;
     }
   </style>
 </head>
@@ -107,7 +95,6 @@
     </tbody>
   </table>
 
-  <img id="dragon" src="https://i.imgur.com/6kX6oxL.png" alt="Dragon RPG" />
   <footer>
     ⚔️ Mise à jour toutes les 30s • Magie automatisée par GitHub Actions + Playwright
   </footer>
@@ -179,9 +166,10 @@
         });
     }
 
-    filterSelect.addEventListener("change", () => {
-      fetchAndUpdate();
-    });
+    filterSelect.addEventListener("change", fetchAndUpdate);
 
     fetchAndUpdate();
     setInterval(fetchAndUpdate, 30000); // toutes les 30 secondes
+  </script>
+</body>
+</html>
