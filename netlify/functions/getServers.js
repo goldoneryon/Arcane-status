@@ -1,19 +1,7 @@
 exports.handler = async function () {
   try {
-    const res = await fetch("https://raw.githubusercontent.com/axsddlr/ThroneLiberty_api/main/server-status.json");
-    const raw = await res.text();
-
-    // 🔍 Extraction prudente : recherche le 1er { ou [ dans le texte
-    const jsonStart = Math.min(
-      ...["{", "["].map(sym => raw.indexOf(sym)).filter(i => i >= 0)
-    );
-
-    if (jsonStart === -1) {
-      throw new Error("Aucun début JSON trouvé dans la réponse");
-    }
-
-    const cleaned = raw.slice(jsonStart).trim();
-    const data = JSON.parse(cleaned);
+    const res = await fetch("https://raw.githubusercontent.com/goldoneryon/Arcane-status/main/server-status.json");
+    const data = await res.json();
 
     return {
       statusCode: 200,
@@ -23,15 +11,10 @@ exports.handler = async function () {
       },
       body: JSON.stringify(data)
     };
-
   } catch (err) {
     return {
       statusCode: 500,
-      body: JSON.stringify({
-        error: "Erreur serveur",
-        details: err.message
-      })
+      body: JSON.stringify({ error: "Erreur serveur", details: err.message })
     };
   }
 };
-
