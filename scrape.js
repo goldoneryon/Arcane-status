@@ -23,5 +23,6 @@ const { chromium } = require("playwright");
 
   await browser.close();
 
+  // ✅ Bien écrire le JSON pur
   fs.writeFileSync("server-status.json", JSON.stringify({ servers }, null, 2));
 })();
