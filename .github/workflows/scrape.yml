@@ -2,7 +2,7 @@ name: Scrape server status
 
 on:
   schedule:
-    - cron: '*/10 * * * *' # Toutes les 10 minutes
+    - cron: '*/1 * * * *'  # toutes les minutes
   workflow_dispatch:
 
 jobs:
