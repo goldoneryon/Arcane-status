@@ -16,16 +16,18 @@ exports.handler = async function () {
     const $ = cheerio.load(html);
     const servers = [];
 
-    $(".server-card").each((_, el) => {
-      const region = $(el).find(".server-region").text().trim();
+    $("table tbody tr").each((_, el) => {
+      const columns = $(el).find("td");
+      const region = $(columns[1]).text().trim();
+
       if (!region.toLowerCase().includes("europe")) return;
 
       servers.push({
-        name: $(el).find(".server-name").text().trim(),
+        name: $(columns[0]).text().trim(),
         region,
-        status: $(el).find(".server-status").text().trim(),
-        weather: $(el).find(".server-weather").text().trim(),
-        population: $(el).find(".server-population").text().trim()
+        status: $(columns[2]).text().trim(),
+        population: $(columns[3]).text().trim(),
+        weather: $(columns[4]).text().trim()
       });
     });
 
@@ -37,6 +39,7 @@ exports.handler = async function () {
       },
       body: JSON.stringify({ servers })
     };
+
   } catch (err) {
     return {
       statusCode: 500,
