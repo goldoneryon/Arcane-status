@@ -18,14 +18,15 @@ exports.handler = async function () {
 
     $("table tbody tr").each((_, el) => {
       const columns = $(el).find("td");
-      const region = $(columns[1]).text().trim();
 
-     // TEMP : affiche tous les serveurs pour debug
-// if (!region.toLowerCase().includes("europe")) return;
+      // Vérifie qu'on ignore les lignes d’en-tête
+      const name = $(columns[0]).text().trim();
+      if (/name/i.test(name)) return;
 
+      // ⚠️ Tu peux ajouter un filtre ici pour "Europe" si nécessaire
       servers.push({
-        name: $(columns[0]).text().trim(),
-        region,
+        name,
+        region: $(columns[1]).text().trim(),
         status: $(columns[2]).text().trim(),
         population: $(columns[3]).text().trim(),
         weather: $(columns[4]).text().trim()
