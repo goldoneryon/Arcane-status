@@ -157,7 +157,7 @@
       fetch("/.netlify/functions/getServers")
         .then(res => res.json())
         .then(data => {
-          renderTable(data, filterSelect.value);
+          renderTable(data.servers, filterSelect.value);
           lastUpdateTime = Date.now();
           updateClock();
         })
