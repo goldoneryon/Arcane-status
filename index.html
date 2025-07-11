@@ -40,6 +40,13 @@
       font-size: 0.9rem;
       color: #888;
     }
+    tr.fade-in {
+      animation: fadeIn 0.8s ease-in;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 <body>
@@ -71,29 +78,9 @@
         const tbody = document.querySelector("#servers-table tbody");
         tbody.innerHTML = "";
 
-        data.forEach(server => {
+        data.servers.forEach(server => {
           const tr = document.createElement("tr");
+          tr.classList.add("fade-in");
 
           const statusClass = {
-            online: "status-online",
-            full: "status-full",
-            maintenance: "status-maintenance"
-          };
-
-          tr.innerHTML = `
-            <td>${server.name}</td>
-            <td>${server.region}</td>
-            <td class="${statusClass[server.status.toLowerCase()] || ''}">${server.status}</td>
-            <td>${server.population}</td>
-            <td>${server.weather}</td>
-          `;
-          tbody.appendChild(tr);
-        });
-      })
-      .catch(err => {
-        document.querySelector("#servers-table tbody").innerHTML =
-          `<tr><td colspan="5">Erreur de chargement : ${err.message}</td></tr>`;
-      });
-  </script>
-</body>
-</html>
+            online: "status
