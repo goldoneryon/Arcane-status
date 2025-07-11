@@ -2,127 +2,83 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Status des serveurs Throne & Liberty</title>
-  <link rel="icon" href="https://upload.wikimedia.org/wikipedia/fr/c/c4/Throne_and_Liberty_Logo.png">
+  <title>Serveurs Throne & Liberty</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap');
-
     body {
-      margin: 0;
-      padding: 2rem;
-      font-family: 'MedievalSharp', serif;
-      background: radial-gradient(circle at top, #1b1b1b, #000000);
-      color: #f0e6d2;
-      text-align: center;
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(to bottom, #111, #333);
+      color: #f5f5f5;
+      padding: 20px;
     }
-
     h1 {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
-      text-transform: uppercase;
-      letter-spacing: 3px;
-      color: #d4af37;
-      text-shadow: 0 0 5px #000;
+      text-align: center;
+      color: #e4b12f;
+      margin-bottom: 30px;
     }
-
-    .server-grid {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 1rem;
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: rgba(255, 255, 255, 0.05);
     }
-
-    .server-card {
-      background-color: rgba(36, 36, 36, 0.9);
-      border: 2px solid #d4af37;
-      border-radius: 10px;
-      box-shadow: 0 0 10px #000;
-      padding: 1rem;
-      width: 300px;
+    th, td {
+      padding: 12px;
       text-align: left;
-      transition: transform 0.2s ease-in-out;
+      border-bottom: 1px solid #555;
     }
-
-    .server-card:hover {
-      transform: scale(1.03);
+    th {
+      background-color: #222;
+      color: #e4b12f;
     }
-
-    .server-name {
-      font-size: 1.4rem;
-      font-weight: bold;
-      color: #ffd700;
-    }
-
-    .badge {
-      display: inline-block;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      margin-right: 8px;
-    }
-
-    .Online { background-color: #28a745; }       /* 🟢 */
-    .Maintenance { background-color: #dc3545; }  /* 🔴 */
-    .Full { background-color: #fd7e14; }         /* 🟠 */
-    .Busy { background-color: #ffc107; }         /* 🟡 */
-
-    .server-info {
-      font-size: 0.95rem;
-      margin-top: 0.5rem;
-      line-height: 1.5;
-    }
-
-    .timestamp {
-      margin-top: 1.5rem;
-      font-size: 0.9rem;
-      opacity: 0.7;
-    }
+    .status-online { color: #4caf50; font-weight: bold; }
+    .status-full { color: #e91e63; font-weight: bold; }
+    .status-maintenance { color: #ff9800; font-weight: bold; }
   </style>
 </head>
 <body>
-  <h1>Serveurs Throne & Liberty</h1>
-  <div id="servers" class="server-grid">Chargement...</div>
-  <div id="timestamp" class="timestamp"></div>
+  <h1>🌍 Serveurs européens - Throne & Liberty</h1>
+  <table id="servers-table">
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Région</th>
+        <th>Statut</th>
+        <th>Population</th>
+        <th>Météo</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
   <script>
-    async function loadServers() {
-      try {
-        const res = await fetch("/.netlify/functions/getServers");
-        const data = await res.json();
-        const container = document.getElementById("servers");
-        container.innerHTML = "";
+    fetch("/.netlify/functions/getServers")
+      .then(res => res.json())
+      .then(data => {
+        const tbody = document.querySelector("#servers-table tbody");
+        tbody.innerHTML = "";
 
         data.servers.forEach(server => {
-          const card = document.createElement("div");
-          card.className = "server-card";
+          const tr = document.createElement("tr");
 
-          card.innerHTML = `
-            <div class="server-name">
-              <span class="badge ${server.status}"></span>${server.name}
-            </div>
-            <div class="server-info">
-              🌍 <strong>Région :</strong> ${server.region}<br>
-              🌦️ <strong>Météo magique :</strong> ${server.weather}<br>
-              👥 <strong>Population :</strong> ${server.population}<br>
-              📶 <strong>Statut :</strong> ${server.status}
-            </div>
+          const statusClass = {
+            "online": "status-online",
+            "full": "status-full",
+            "maintenance": "status-maintenance"
+          };
+
+          tr.innerHTML = `
+            <td>${server.name}</td>
+            <td>${server.region}</td>
+            <td class="${statusClass[server.status.toLowerCase()] || ''}">${server.status}</td>
+            <td>${server.population}</td>
+            <td>${server.weather}</td>
           `;
-
-          container.appendChild(card);
+          tbody.appendChild(tr);
         });
-
-        const now = new Date();
-        document.getElementById("timestamp").textContent =
-          `⏱️ Dernière mise à jour : ${now.toLocaleTimeString()}`;
-      } catch (e) {
-        document.getElementById("servers").textContent =
-          "❌ Impossible de charger les serveurs.";
-        console.error("Erreur lors du chargement des serveurs :", e);
-      }
-    }
-
-    loadServers();
-    setInterval(loadServers, 300000); // Toutes les 5 minutes
+      })
+      .catch(err => {
+        document.querySelector("#servers-table tbody").innerHTML =
+          `<tr><td colspan="5">Erreur de chargement : ${err.message}</td></tr>`;
+      });
   </script>
 </body>
 </html>
