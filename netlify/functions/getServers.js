@@ -1,8 +1,7 @@
 exports.handler = async function () {
   try {
-    const res = await fetch("https://throneandliberty.gameslantern.com/api/server-status");
+    const res = await fetch("https://raw.githubusercontent.com/axsddlr/ThroneLiberty_api/main/server-status.json");
     const data = await res.json();
-
     return {
       statusCode: 200,
       headers: {
