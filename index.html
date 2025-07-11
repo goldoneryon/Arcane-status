@@ -1,175 +1,73 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8" />
-  <title>Serveurs Throne & Liberty</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #111;
-      color: #f0f0f0;
-      padding: 30px;
-    }
-    h1 {
-      text-align: center;
-      color: #e4b12f;
-      margin-bottom: 10px;
-    }
-    .status-bar {
-      text-align: center;
-      margin-bottom: 20px;
-      font-size: 1rem;
-    }
-    #live-indicator {
-      color: #f44336;
-      font-weight: bold;
-      animation: pulse 1s infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 0.3; }
-      50% { opacity: 1; }
-    }
-    select {
-      font-size: 1rem;
-      padding: 6px;
-      border-radius: 4px;
-      margin-bottom: 20px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background-color: #222;
-    }
-    th, td {
-      padding: 12px;
-      border-bottom: 1px solid #555;
-      text-align: left;
-    }
-    th {
-      background-color: #333;
-      color: #e4b12f;
-    }
-    .status-online { color: #4caf50; font-weight: bold; }
-    .status-full { color: #e91e63; font-weight: bold; }
-    .status-maintenance { color: #ff9800; font-weight: bold; }
-    .recommended {
-      background-color: rgba(255, 255, 255, 0.05);
-      border-left: 5px solid #4caf50;
-    }
-    footer {
-      margin-top: 40px;
-      text-align: center;
-      font-size: 0.9rem;
-      color: #888;
-    }
-  </style>
-</head>
-<body>
-  <h1>🌍 Serveurs Throne & Liberty</h1>
+<!-- L'extrait JavaScript seulement -->
 
-  <div class="status-bar">
-    <span id="live-indicator">🔴 LIVE</span>
-    <span id="last-update">Mise à jour il y a 0s</span>
-  </div>
+<script>
+  const tbody = document.querySelector("#servers-table tbody");
+  const filterSelect = document.getElementById("filter");
+  const ping = document.getElementById("ping");
+  let previousStatus = {};
+  let lastUpdateTime = Date.now();
 
-  <label for="filter">Filtrer par statut :</label>
-  <select id="filter">
-    <option value="all">Tous</option>
-    <option value="Online">🟢 Online</option>
-    <option value="Full">🔴 Full</option>
-    <option value="Maintenance">🟠 Maintenance</option>
-  </select>
+  function getWeatherIcon(text) {
+    text = text.toLowerCase();
+    if (text.includes("sun")) return "☀️";
+    if (text.includes("rain")) return "🌧️";
+    if (text.includes("cloud")) return "☁️";
+    if (text.includes("fog")) return "🌫️";
+    return "❓";
+  }
 
-  <table id="servers-table">
-    <thead>
-      <tr>
-        <th>Nom</th>
-        <th>Région</th>
-        <th>Statut</th>
-        <th>Population</th>
-        <th>Météo</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td colspan="5">Chargement des serveurs...</td></tr>
-    </tbody>
-  </table>
+  function updateClock() {
+    const seconds = Math.floor((Date.now() - lastUpdateTime) / 1000);
+    document.getElementById("last-update").textContent = `Mise à jour il y a ${seconds}s`;
+  }
+  setInterval(updateClock, 1000);
 
-  <footer>
-    ⚔️ Mise à jour toutes les 30s • Magie automatisée par GitHub Actions + Playwright
-  </footer>
-  <audio id="ping" src="https://assets.mixkit.co/sfx/preview/mixkit-magical-coin-win-1999.mp3" preload="auto"></audio>
+  function renderTable(servers, filter) {
+    tbody.innerHTML = "";
+    servers.forEach(server => {
+      if (filter !== "all" && server.status !== filter) return;
 
-  <script>
-    const tbody = document.querySelector("#servers-table tbody");
-    const filterSelect = document.getElementById("filter");
-    const ping = document.getElementById("ping");
-    let previousStatus = {};
-    let lastUpdateTime = Date.now();
+      const tr = document.createElement("tr");
+      if (server.population.toLowerCase() === "low") tr.classList.add("recommended");
 
-    function getWeatherIcon(text) {
-      text = text.toLowerCase();
-      if (text.includes("sun")) return "☀️";
-      if (text.includes("rain")) return "🌧️";
-      if (text.includes("cloud")) return "☁️";
-      if (text.includes("fog")) return "🌫️";
-      return "❓";
-    }
+      const statusClass = {
+        online: "status-online",
+        full: "status-full",
+        maintenance: "status-maintenance"
+      };
 
-    function updateClock() {
-      const seconds = Math.floor((Date.now() - lastUpdateTime) / 1000);
-      document.getElementById("last-update").textContent = `Mise à jour il y a ${seconds}s`;
-    }
-    setInterval(updateClock, 1000);
+      if (server.status === "Online" && previousStatus[server.name] !== "Online") {
+        ping.play();
+      }
 
-    function renderTable(servers, filter) {
-      tbody.innerHTML = "";
-      servers.forEach(server => {
-        if (filter !== "all" && server.status !== filter) return;
+      previousStatus[server.name] = server.status;
 
-        const tr = document.createElement("tr");
-        if (server.population.toLowerCase() === "low") tr.classList.add("recommended");
+      tr.innerHTML = `
+        <td>${server.name}</td>
+        <td>${server.region}</td>
+        <td class="${statusClass[server.status.toLowerCase()] || ''}">${server.status}</td>
+        <td>${server.population}</td>
+        <td>${getWeatherIcon(server.weather)} ${server.weather}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
 
-        const statusClass = {
-          online: "status-online",
-          full: "status-full",
-          maintenance: "status-maintenance"
-        };
-
-        if (server.status === "Online" && previousStatus[server.name] !== "Online") {
-          ping.play();
-        }
-
-        previousStatus[server.name] = server.status;
-
-        tr.innerHTML = `
-          <td>${server.name}</td>
-          <td>${server.region}</td>
-          <td class="${statusClass[server.status.toLowerCase()] || ''}">${server.status}</td>
-          <td>${server.population}</td>
-          <td>${getWeatherIcon(server.weather)} ${server.weather}</td>
-        `;
-        tbody.appendChild(tr);
+  function fetchAndUpdate() {
+    fetch("/.netlify/functions/getServers")
+      .then(res => res.json())
+      .then(data => {
+        renderTable(data, filterSelect.value); // ✅ Correction ici
+        lastUpdateTime = Date.now();
+        updateClock();
+      })
+      .catch(err => {
+        tbody.innerHTML = `<tr><td colspan="5">Erreur de chargement : ${err.message}</td></tr>`;
       });
-    }
+  }
 
-    function fetchAndUpdate() {
-      fetch("/.netlify/functions/getServers")
-        .then(res => res.json())
-        .then(data => {
-          renderTable(data.servers, filterSelect.value);
-          lastUpdateTime = Date.now();
-          updateClock();
-        })
-        .catch(err => {
-          tbody.innerHTML = `<tr><td colspan="5">Erreur de chargement : ${err.message}</td></tr>`;
-        });
-    }
+  filterSelect.addEventListener("change", fetchAndUpdate);
 
-    filterSelect.addEventListener("change", fetchAndUpdate);
-
-    fetchAndUpdate();
-    setInterval(fetchAndUpdate, 30000); // toutes les 30 secondes
-  </script>
-</body>
-</html>
+  fetchAndUpdate();
+  setInterval(fetchAndUpdate, 30000); // toutes les 30 secondes
+</script>
