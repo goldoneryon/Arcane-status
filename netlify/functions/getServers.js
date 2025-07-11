@@ -20,7 +20,8 @@ exports.handler = async function () {
       const columns = $(el).find("td");
       const region = $(columns[1]).text().trim();
 
-     if (!/europe|eu/i.test(region)) return;
+     // TEMP : affiche tous les serveurs pour debug
+// if (!region.toLowerCase().includes("europe")) return;
 
       servers.push({
         name: $(columns[0]).text().trim(),
