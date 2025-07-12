@@ -2,32 +2,32 @@ name: Scrape server status
 
 on:
   schedule:
-    - cron: '*/1 * * * *'   # Toutes les minutes
-  workflow_dispatch:         # Permet de lancer manuellement le workflow
+    - cron: '*/1 * * * *'     # Toutes les minutes
+  workflow_dispatch:           # Permet de le déclencher manuellement
 
 jobs:
   scrape:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout du dépôt
+      - name: ⏱️ Checkout du dépôt
         uses: actions/checkout@v3
 
-      - name: Installer Node.js
+      - name: ⚙️ Installer Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
-      - name: Installer les dépendances
+      - name: 📦 Installer les dépendances
         run: npm install playwright
 
-      - name: Lancer le script de scraping
+      - name: 🧙‍♂️ Lancer le script de scraping
         run: node scrape.js
 
-      - name: Vérifier les modifications
+      - name: 🔍 Vérifier les modifications
         run: git status
 
-      - name: Commit et push du fichier server-status.json
+      - name: 📤 Commit et push du fichier server-status.json
         run: |
           git config user.name "ServerBot"
           git config user.email "serverbot@example.com"
