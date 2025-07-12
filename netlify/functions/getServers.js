@@ -1,35 +1,21 @@
-const https = require("https");
+const fs = require('fs');
+const path = require('path');
 
-exports.handler = async function () {
+exports.handler = async () => {
   try {
-    const url = "https://raw.githubusercontent.com/goldoneryon/Arcane-status/main/server-status.json";
-
-    const json = await new Promise((resolve, reject) => {
-      https.get(url, res => {
-        let data = "";
-        res.on("data", chunk => data += chunk);
-        res.on("end", () => resolve(data));
-      }).on("error", reject);
-    });
-
-    const parsed = JSON.parse(json);
+    const filePath = path.resolve(__dirname, '../../server-status.json');
+    const raw = fs.readFileSync(filePath, 'utf8');
+    const data = JSON.parse(raw);
 
     return {
       statusCode: 200,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(parsed)
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
     };
-
   } catch (err) {
     return {
       statusCode: 500,
-      body: JSON.stringify({
-        error: "Erreur serveur",
-        details: err.message
-      })
+      body: JSON.stringify({ error: "Erreur de parsing JSON", details: err.message }),
     };
   }
 };
